@@ -6,7 +6,7 @@ module PromoRules
 
         OpenStruct.new(
           line_item: item,
-          price: item.product.active_price.amount,
+          price: item.unit_price,
           quantity: qty
         )
       end

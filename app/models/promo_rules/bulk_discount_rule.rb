@@ -20,7 +20,7 @@ module PromoRules
     private
 
     def set_price(item)
-      eligible?(item) ? discount_price : item.product.active_price.amount
+      eligible?(item) ? discount_price : item.unit_price
     end
 
     def eligible?(item)
