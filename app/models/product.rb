@@ -4,6 +4,7 @@ class Product < ApplicationRecord
 
   has_many :prices, dependent: :destroy
   has_many :promotions, dependent: :destroy
+  has_many :line_items, dependent: :destroy
   has_one :active_price, -> { where(active: true) }, class_name: "Price"
   has_one :active_promotion, -> { where(active: true) }, class_name: "Promotion"
 end

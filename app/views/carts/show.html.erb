@@ -1,0 +1,36 @@
+<div class="w-full max-w-5xl mx-auto">
+  <h1 class="text-2xl font-semibold mb-6">Your Cart</h1>
+
+  <!-- Search / Scan -->
+  <div class="mb-6">
+    <%= form_with url: cart_scans_path(@cart), method: :post, local: true, class: "flex gap-2" do %>
+      <%= text_field_tag :code, params[:code], placeholder: "Scan or enter product code",
+            class: "flex-1 px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring focus:border-blue-300" %>
+      <%= submit_tag "Scan", class: "px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700" %>
+    <% end %>
+  </div>
+
+  <% if @line_items.any? %>
+    <!-- Header row -->
+    <div class="hidden md:flex font-semibold text-sm text-gray-500 border-b pb-2 mb-2">
+      <div class="w-1/4">Product</div>
+      <div class="w-1/4">Quantity</div>
+      <div class="w-1/6 text-right">Unit</div>
+      <div class="w-1/6 text-right">Total</div>
+      <div class="w-1/6 text-right">Discount</div>
+      <div class="w-1/6 text-right">Net</div>
+    </div>
+
+    <!-- Line items -->
+    <ul id="line_items_list" class="divide-y divide-gray-200 rounded-md bg-white shadow">
+      <%= render partial: "line_items/line_item", collection: @line_items, as: :item %>
+    </ul>
+
+    <!-- Cart total -->
+    <%= render "carts/total", cart: @cart %>
+  <% else %>
+    <div class="text-gray-500 text-center py-10">
+      Your cart is empty.
+    </div>
+  <% end %>
+</div>

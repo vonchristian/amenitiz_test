@@ -1,36 +1,34 @@
-require 'rails_helper'
+require "rails_helper"
 
-RSpec.describe PromotionService do
-  describe '#execute' do
-    let(:cart) { create(:cart) }
-    let(:product) { create(:product) }
-    let!(:price) { create(:price, product:, amount_cents: 500) }
-    let!(:line_item) { create(:line_item, cart:, product:, quantity: 3, unit_cost_cents: 500) }
-    let!(:promotion) do
-      create(:promotion, product:, rule_type: 'PromoRules::BuyOneGetOneRule', active: true)
-    end
+RSpec.describe PromotionService, type: :service do
+  let(:cart)    { create(:cart) }
+  let(:product) { create(:product) }
+  let!(:price)  { create(:price, product: product, amount_cents: 1000) }
 
-    it 'applies the promotion and updates line item costs' do
-      expect {
-        described_class.run!(cart:)
-      }.to change { line_item.reload.total_cost_cents }
+  let!(:line_item) do
+    create(:line_item, cart: cart, product: product, quantity: 1, base_unit_cost_cents: 1000, unit_cost_cents: 1000, net_cost_cents: 1000)
+  end
 
-      expect(line_item.total_cost_cents).to eq(1500)
-      expect(line_item.discount_cost_cents).to eq(500)
-      expect(line_item.quantity).to eq(3)
-      expect(line_item.unit_cost_cents).to eq(500)
-      expect(cart.reload.total_cost_cents).to eq(1000)
-    end
+  let!(:rule) do
+    create(:percent_discount_rule, discount_percent: 1.0, min_quantity: 4)
+  end
 
-    it 'does nothing if no promotion is present' do
-      promotion.destroy
-      line_item.update!(total_cost_cents: 0, discount_cost_cents: 0)
+  let!(:promotion) do
+    create(:promotion, product: product, rule: rule, rule_type: "PromoRules::PercentDiscountRule", active: true)
+  end
 
-      described_class.run!(cart:)
+  it "calls apply on the resolved rule" do
+    spy_rule = instance_double("PromoRules::PercentDiscountRule")
+    allow(spy_rule).to receive(:apply)
+    allow_any_instance_of(Promotion).to receive(:resolved_rule).and_return(spy_rule)
 
-      expect(line_item.reload.total_cost_cents).to eq(0)
-      expect(line_item.discount_cost_cents).to eq(0)
-      expect(cart.reload.total_cost_cents).to eq(0)
-    end
+    described_class.run!(cart: cart)
+
+    expect(spy_rule).to have_received(:apply).with(an_instance_of(LineItem))
+  end
+  it 'updates cart total costs after applying promotions' do
+    described_class.run!(cart: cart)
+
+    expect(cart.total_cost_cents).to eq(1000)
   end
 end

@@ -1,0 +1,25 @@
+<li id="<%= dom_id(item) %>" class="flex justify-between items-center border-b py-3">
+  <div class="w-1/4 font-medium"><%= item.product.name %></div>
+
+  <div class="w-1/4">
+    <div class="flex items-center gap-2">
+      <%= button_to '-', cart_line_item_path(@cart, item),
+          method: :patch,
+          params: { decrement: true },
+          form: { data: { turbo_stream: true } },
+          class: "px-2 py-1 bg-gray-200 rounded" %>
+
+      <span><%= item.quantity %></span>
+
+      <%= button_to '+', cart_line_item_path(@cart, item),
+          method: :patch,
+          form: { data: { turbo_stream: true } },
+          class: "px-2 py-1 bg-gray-200 rounded" %>
+    </div>
+  </div>
+
+  <div class="w-1/6 text-right"><%= number_to_currency item.unit_cost %></div>
+  <div class="w-1/6 text-right"><%= number_to_currency Money.new(item.total_cost_cents) %></div>
+  <div class="w-1/6 text-right text-green-600">- <%= number_to_currency Money.new(item.discount_cost_cents) %></div>
+  <div class="w-1/6 text-right font-semibold"><%= number_to_currency Money.new(item.net_cost_cents) %></div>
+</li>

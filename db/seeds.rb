@@ -23,3 +23,4 @@ percent_discount_rule = PromoRules::PercentDiscountRule.find_or_create_by!(min_q
 Promotion.find_or_create_by!(code: 'GR1_PROMO', name: 'Green Tea Promotion', rule_type: 'PromoRules::BuyOneGetOneRule', product: green_tea, active: true)
 Promotion.find_or_create_by!(code: 'SR1_PROMO', name: 'Strawberry Promotion', rule: bulk_discount_strawberry, product: strawberry, active: true)
 Promotion.find_or_create_by!(code: 'CF1_PROMO', name: 'Coffee Promotion', rule: percent_discount_rule, product: coffee, active: true)
+Cart.create!
