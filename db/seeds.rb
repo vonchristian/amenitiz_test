@@ -7,3 +7,10 @@
 #   ["Action", "Comedy", "Drama", "Horror"].each do |genre_name|
 #     MovieGenre.find_or_create_by!(name: genre_name)
 #   end
+
+
+green_tea = Product.find_or_create_by!(name: 'Green Tea', code: 'GR1') do |product|
+  product.prices.create!(amount_cents: 311, amount_currency: 'GBP')
+end
+
+Promotion.find_or_create_by!(code: 'GR1_PROMO', name: 'Green Tea Promotion', rule_type: 'PromoRules::BuyOneGetOne', product: green_tea)
