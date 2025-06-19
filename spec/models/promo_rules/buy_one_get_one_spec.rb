@@ -1,11 +1,11 @@
 require 'rails_helper'
 
-RSpec.describe PromoRules::BuyOneGetOne do
+RSpec.describe PromoRules::BuyOneGetOneRule do
   describe '.apply' do
     let(:product) { create(:product) }
     let(:cart) { create(:cart) }
     let!(:price) { create(:price, product:, amount_cents: 500, active: true) }
-    let(:promotion) { create(:promotion, product:, rule_type: 'Rules::BuyOneGetOne') }
+    let(:promotion) { create(:promotion, product:, rule_type: 'PromoRules::BuyOneGetOneRule') }
 
     it 'applies the logic correctly for even quantities' do
       item = create(:line_item, product:, cart:, quantity: 4, unit_cost_cents: 0)

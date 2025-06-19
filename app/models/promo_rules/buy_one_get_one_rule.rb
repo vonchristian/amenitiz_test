@@ -1,5 +1,5 @@
 module PromoRules
-  class BuyOneGetOne
+  class BuyOneGetOneRule
     def self.apply(promotion:, items:)
       items.map do |item|
         qty = (item.quantity / 2.0).ceil
