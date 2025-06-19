@@ -7,7 +7,7 @@ RSpec.describe PromotionService do
     let!(:price) { create(:price, product:, amount_cents: 500) }
     let!(:line_item) { create(:line_item, cart:, product:, quantity: 3, unit_cost_cents: 500) }
     let!(:promotion) do
-      create(:promotion, product:, rule_type: 'PromoRules::BuyOneGetOne', active: true)
+      create(:promotion, product:, rule_type: 'PromoRules::BuyOneGetOneRule', active: true)
     end
 
     it 'applies the promotion and updates line item costs' do
