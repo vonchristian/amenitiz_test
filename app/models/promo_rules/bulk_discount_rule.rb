@@ -1,30 +1,38 @@
-# frozen_string_literal: true
-
+# app/models/promo_rules/bulk_discount_rule.rb
 module PromoRules
   class BulkDiscountRule < ApplicationRecord
-    # This class represents a promotion that applies a discount price
-    # when the quantity purchased meets or exceeds `min_quantity`.
-
     monetize :discount_price_cents, with_model_currency: :discount_price_currency
 
-    def apply(promotion:, items:)
-      items.map do |item|
-        OpenStruct.new(
-          line_item: item,
-          price: set_price(item),
-          quantity: item.quantity
-        )
+    def apply(item)
+      if item.quantity >= min_quantity
+        apply_discount(item)
+      else
+        reset_price(item)
       end
     end
 
     private
 
-    def set_price(item)
-      eligible?(item) ? discount_price : item.unit_price
+    def apply_discount(item)
+      original   = item.base_unit_cost_cents * item.quantity
+      discounted = discount_price.cents * item.quantity
+
+      item.update!(
+        unit_cost_cents: discount_price.cents,
+        total_cost_cents: original,
+        discount_cost_cents: original - discounted,
+        net_cost_cents: discounted
+      )
     end
 
-    def eligible?(item)
-      item.quantity >= min_quantity
+    def reset_price(item)
+      base = item.base_unit_cost_cents
+      item.update!(
+        unit_cost_cents: base,
+        total_cost_cents: base * item.quantity,
+        discount_cost_cents: 0,
+        net_cost_cents: base * item.quantity
+      )
     end
   end
 end
