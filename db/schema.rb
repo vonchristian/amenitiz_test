@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_06_19_054151) do
+ActiveRecord::Schema[8.0].define(version: 2025_06_19_054438) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -19,6 +19,22 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_19_054151) do
     t.string "total_cost_currency", default: "USD"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "line_items", force: :cascade do |t|
+    t.bigint "cart_id", null: false
+    t.bigint "product_id", null: false
+    t.integer "quantity", default: 1
+    t.integer "unit_cost_cents"
+    t.integer "total_cost_cents", default: 0
+    t.integer "discount_cost_cents", default: 0
+    t.string "unit_cost_currency", default: "USD"
+    t.string "total_cost_currency", default: "USD"
+    t.string "discount_cost_currency", default: "USD"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["cart_id"], name: "index_line_items_on_cart_id"
+    t.index ["product_id"], name: "index_line_items_on_product_id"
   end
 
   create_table "prices", force: :cascade do |t|
@@ -39,5 +55,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_19_054151) do
     t.index ["code"], name: "index_products_on_code", unique: true
   end
 
+  add_foreign_key "line_items", "carts"
+  add_foreign_key "line_items", "products"
   add_foreign_key "prices", "products"
 end
