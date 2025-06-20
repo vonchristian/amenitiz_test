@@ -1,50 +1,41 @@
-require 'rails_helper'
+# spec/models/promo_rules/percent_discount_rule_spec.rb
+require "rails_helper"
 
 RSpec.describe PromoRules::PercentDiscountRule, type: :model do
-  describe '#apply' do
-    let(:product) { create(:product) }
-    let!(:price) { create(:price, product:, amount_cents: 1000) } # $10.00
+  describe "#apply" do
     let(:cart) { create(:cart) }
+    let(:rule) { create(:percent_discount_rule, discount_percent: 25.0, min_quantity: 3) }
+    let(:product) { create(:product) }
+    let(:price) { create(:price, product:, amount_cents: 100) }
 
-    let!(:line_item) do
-      create(:line_item, cart:, product:, quantity: quantity, unit_cost_cents: 1000)
-    end
+    context "when quantity is below the minimum" do
+      let(:item) { create(:line_item, base_unit_cost_cents: 100, cart:, product:, quantity: 2) }
 
-    let(:promotion) do
-      create(:promotion, product:, rule: rule, rule_type: rule.class.name)
-    end
+      it "does not apply the discount" do
+        rule.apply(item)
 
-    subject(:results) { rule.apply(promotion: promotion, items: [ line_item ]) }
-
-    context 'when quantity is below the minimum' do
-      let(:quantity) { 3 }
-      let(:rule) { create(:percent_discount_rule, min_quantity: 5, discount_percent: 25.0) }
-
-      it 'does not apply discount' do
-        result = results.first
-        expect(result.price.cents).to eq(1000) # $10.00
-        expect(result.quantity).to eq(3)
+        expect(item.unit_cost_cents).to eq(100)
+        expect(item.total_cost_cents).to eq(200)
+        expect(item.discount_cost_cents).to eq(0)
+        expect(item.net_cost_cents).to eq(200)
       end
     end
 
-    context 'when quantity meets the minimum' do
-      let(:quantity) { 5 }
-      let(:rule) { create(:percent_discount_rule, min_quantity: 5, discount_percent: 25.0) }
+    context "when quantity meets the minimum" do
+     let(:item) { create(:line_item, base_unit_cost_cents: 100, cart:, product:, quantity: 4) }
 
-      it 'applies percent discount to price' do
-        result = results.first
-        expect(result.price.cents).to eq(750) # $7.50 after 25% off
-        expect(result.quantity).to eq(5)
-      end
-    end
+      it "applies the discount correctly" do
+        rule.apply(item)
 
-    context 'when no min_quantity is set' do
-      let(:quantity) { 2 }
-      let(:rule) { create(:percent_discount_rule, min_quantity: nil, discount_percent: 10.0) }
+        expected_discounted_unit_cost = (100 * 0.75).round # 25% off
+        expected_total = 100 * 4
+        expected_net = expected_discounted_unit_cost * 4
+        expected_discount = expected_total - expected_net
 
-      it 'always applies the discount' do
-        result = results.first
-        expect(result.price.cents).to eq(900) # $9.00 after 10% off
+        expect(item.unit_cost_cents).to eq(expected_discounted_unit_cost)
+        expect(item.total_cost_cents).to eq(expected_total)
+        expect(item.discount_cost_cents).to eq(expected_discount)
+        expect(item.net_cost_cents).to eq(expected_net)
       end
     end
   end

@@ -1,38 +1,39 @@
-require 'rails_helper'
+# spec/models/promo_rules/bulk_discount_rule_spec.rb
+require "rails_helper"
 
 RSpec.describe PromoRules::BulkDiscountRule, type: :model do
-  describe '#apply' do
-    let(:product) { create(:product) }
-    let!(:price) { create(:price, product:, amount_cents: 100) } # $1.00
-    let(:cart) { create(:cart) }
-
-    let!(:line_item) do
-      create(:line_item, product:, cart:, quantity: quantity, unit_cost_cents: 100)
+  describe "#apply" do
+    let(:rule) do
+      create(:bulk_discount_rule, discount_price_cents: 75, discount_price_currency: "USD", min_quantity: 3)
     end
+     let(:cart) { create(:cart) }
+    let(:product) { create(:product) }
+    let(:price) { create(:price, product:, amount_cents: 100) }
 
-    subject(:results) { rule.apply(promotion: promotion, items: [ line_item ]) }
 
-    let(:promotion) { create(:promotion, product:, rule: rule, rule_type: rule.class.name) }
+    context "when quantity is below the minimum" do
+      let(:item) { create(:line_item, cart:, product:, quantity: 2, base_unit_cost_cents: 100) }
 
-    context 'when quantity is below the minimum' do
-      let(:quantity) { 4 }
-      let(:rule) { create(:bulk_discount_rule, min_quantity: 5, discount_price_cents: 80) }
+      it "does not apply the discount" do
+        rule.apply(item)
 
-      it 'returns the original price' do
-        result = results.first
-        expect(result.price.cents).to eq(100)
-        expect(result.quantity).to eq(4)
+        expect(item.unit_cost_cents).to eq(100)
+        expect(item.total_cost_cents).to eq(200)
+        expect(item.discount_cost_cents).to eq(0)
+        expect(item.net_cost_cents).to eq(200)
       end
     end
 
-    context 'when quantity meets or exceeds the minimum' do
-      let(:quantity) { 6 }
-      let(:rule) { create(:bulk_discount_rule, min_quantity: 5, discount_price_cents: 80) }
+    context "when quantity meets the minimum" do
+      let(:item) { create(:line_item, cart:, product:, quantity: 4, base_unit_cost_cents: 100) }
 
-      it 'applies the discount price' do
-        result = results.first
-        expect(result.price.cents).to eq(80)
-        expect(result.quantity).to eq(6)
+      it "applies the bulk discount price" do
+        rule.apply(item)
+
+        expect(item.unit_cost_cents).to eq(75)
+        expect(item.total_cost_cents).to eq(400) # original cost = 100 * 4
+        expect(item.net_cost_cents).to eq(300)   # discounted = 75 * 4
+        expect(item.discount_cost_cents).to eq(100)
       end
     end
   end
