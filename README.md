@@ -3,8 +3,16 @@
 This is a Rails 8 application built to demonstrate a modular, maintainable, and testable checkout system with promotions.
 
 ---
+## Live Preview
 
-## ⚙️ Tech Stack
+You can preview the app using the following URL:
+
+🔗 **http://192.34.59.50/carts/1**
+
+<img width="1111" alt="Screenshot 2025-06-20 at 9 07 02 AM" src="https://github.com/user-attachments/assets/b65852b5-df6b-482a-9698-2d3e5be4e196" />
+
+
+## Tech Stack
 
 - **Ruby on Rails 8**
 - **PostgreSQL**
@@ -16,9 +24,8 @@ This is a Rails 8 application built to demonstrate a modular, maintainable, and 
 
 ---
 
-## 🧠 Architecture & Design
 
-### ✅ Code Structure
+### Code Structure
 
 | Component         | Purpose                                                                 |
 |-------------------|-------------------------------------------------------------------------|
@@ -31,7 +38,7 @@ This is a Rails 8 application built to demonstrate a modular, maintainable, and 
 
 ---
 
-### ✅ Promotion Rules
+### Promotion Rules
 
 Promotion rules are implemented as separate model classes under `PromoRules::*`. Each rule follows a common interface:
 
@@ -45,7 +52,7 @@ This pattern allows for easily adding new promotion types without changing exist
 
 ---
 
-### ✅ Flow
+### Flow
 
 1. A product is scanned by code → `ScanService.run!`
 2. If it exists in the cart → increment quantity
@@ -54,7 +61,7 @@ This pattern allows for easily adding new promotion types without changing exist
 
 ---
 
-## 🔧 Setup
+## Setup
 
 ```bash
 bundle install
@@ -71,7 +78,7 @@ bin/rails tailwindcss:watch
 
 ---
 
-## ✅ Running Tests
+## Running Tests
 
 ```bash
 bundle exec rspec
@@ -85,7 +92,7 @@ bundle exec rspec spec/services/scan_service_spec.rb
 
 ---
 
-## 💡 Best Practices Followed
+## Best Practices Followed
 
 - Clear separation of concerns using service objects
 - Open/Closed design via rule delegation
@@ -97,7 +104,7 @@ bundle exec rspec spec/services/scan_service_spec.rb
 
 ---
 
-## 📦 Extending Promotions
+## Extending Promotions
 
 To add a new promotion:
 
